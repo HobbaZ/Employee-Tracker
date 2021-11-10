@@ -6,21 +6,20 @@ USE employee_db;
 
 CREATE TABLE department (
   id INT AUTO_INCREMENT NOT NULL,
-  first_name VARCHAR(30) NOT NULL,
-  last_name VARCHAR(30) NOT NULL,
-  PRIMARY KEY id
+  department_name VARCHAR(30) NOT NULL,
+  PRIMARY KEY (id)
 );
 
-CREATE TABLE department_role {
-id INT AUTO_INCREMENT not NULL,
+CREATE TABLE department_role (
+id INT AUTO_INCREMENT NOT NULL,
 title VARCHAR(50) NOT NULL,
-salary DECIMAL NOT null,
-department_id INT,
+salary  INT NOT NULL,
+department_id  INT,
 FOREIGN KEY (department_id)
 REFERENCES department(id)
 ON DELETE SET NULL,
-PRIMARY KEY id
-};
+PRIMARY KEY (id)
+);
 
 CREATE TABLE employee (
   id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
@@ -30,5 +29,5 @@ CREATE TABLE employee (
   FOREIGN KEY (role_id)
   REFERENCES department_role(id)
   ON DELETE SET NULL,
-  manager_id --link manager id to manager role id--
+  manager_id INT
 );

@@ -1,138 +1,167 @@
 //Get all needed requirements
 const inquirer = require('inquirer');
+require('dotenv').config()
 const fs = require('fs');
+const generateDATABASE = require('./generateDATABASE');
 
-const Engineer = require('./lib/engineer');
-const Intern = require('./lib/intern');
-const Manager = require('./lib/manager');
+const mysql = require('mysql2');
+
+// Connect to database
+const db = mysql.createConnection(
+    {
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASS,
+      database: 'employee_db'
+    },
+    console.log(`Connected to the employee_db database.`)
+);
 
 const employeeTeam = [];
 
 /*Need to start prompts with selector with all depts, all roles, 
 all employees, add ept, add role, add employee and update role*/
 
-function teamOptions() {
+function startPrompt() {
     inquirer.prompt([
     {
         name: 'options',
         type: 'list',
         message: 'I would like to: ',
-        choices: ['View All Depts', 'View All Roles', 'View All Employees', 
+        choices: ['View All Departments', 'View All Roles', 'View All Employees', 
         'Add A Role', 'Add A Employee', 'Update Employee Role'],
     },
     ])
 
     .then((answers) => { //convert to switch statement
-        if(answers.options === choices[0]) {
-            console.log(choices[0])
-            //run view depts function
+        if(answers.options === 'View All Departments') {
+            console.log('View All Departments selected')
+            viewDepartments();
             return;
-        } else if(answers.options === choices[1]) {
-            console.log(choices[1])
-            //run view roles function
+
+        } else if(answers.options === 'View All Roles') {
+            console.log('View All Roles selected')
+            viewRoles();
             return;
-        } else if(answers.options === choices[2]) {
-            console.log(choices[2])
-            //run view employees function
+
+        } else if(answers.options === 'View All Employees') {
+            console.log('View All Employees selected')
+            viewEmployees();
             return;
         } //other options
     });
+};
+
+function addDepartment() {
+        inquirer.prompt([
+            //Department name
+        {
+        name: 'departmentName',
+        type: 'input',
+        message: 'Enter the department name you want to add',
+        validate: function(departmentName) {
+            if (departmentName) {
+                return true;
+            } else {
+                return 'Please enter the department name you want to add';
+            }
+        }
+    },
+    ]);
 };
 
 function AddEmployee() {
     inquirer.prompt([
         //Employee name
     {
-        name: 'name',
+        name: 'firstName',
+        type: 'input',
+        message: 'Enter the employee\'s first name',
+        validate: function(firstName) {
+            if (firstName) {
+              return true;
+            } else {
+              return 'Please enter the employee\'s first name';
+            }
+        }
+    },
+
+    //Employee name
+    {
+        name: 'lastName',
         type: 'input',
         message: 'Enter the team manager\'s name',
-        validate: function(name) {
-            if (name) {
-              return true;
+        validate: function(lastName) {
+            if (lastName) {
+                return true;
             } else {
-              return 'Please enter the team manager\'s name';
+                return 'Please enter the employee\'s last name';
             }
         }
     },
 
-     //Employee email
+     //Employee role
      {
-        name: 'email',
+        name: 'role',
         type: 'input',
-        message: (answers) => `Enter the team manager ${answers.name}\'s email address`,
-        validate: function(email) {
-            let test = email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/); //regex from https://www.w3resource.com/javascript/form/email-validation.php
-            if (test) {
+        message: (answers) => `Enter ${answers.firstName} ${answers.lastName}\'s department role`,
+        validate: function(role) {
+            if (role) {
               return true;
             } else {
-              return 'Please enter a valid email address.';
-            }
-        }
-    }, 
-
-    //Employee id
-    {
-        name: 'id',
-        type: 'number',
-        message: (answers) => `Enter ${answers.name}\'s id number`,
-        validate: function(id) {
-            if (id) {
-              return true;
-            } else {
-              return 'Please enter the employee\'s id number';
-            }
-        }
-    }, 
-
-    //Manager office number
-    {
-        name: 'officeNumber',
-        type: 'number',
-        message: (answers) => `Please enter ${answers.name}\'s office phone number`,
-        validate: function(officeNumb) {
-            if (officeNumb) {
-              return true;
-            } else {
-              return 'Please enter the manager\'s office phone number number';
+              return 'Please enter the employee\'s department role';
             }
         }
     },
+
+    //Employee manager id
+    {
+        name: 'manager_id',
+        type: 'number',
+        message: (answers) => `Enter ${answers.firstName} ${answers.lastName}\'s manager id`,
+        validate: function(manager_id) {
+            if (manager_id) {
+              return true;
+            } else {
+              return 'Please enter the employee\'s manager id';
+            }
+        }
+    }, 
     ])
 
     .then((answers) => {
-        const manager = new Manager(answers.name, answers.id ,answers.email, answers.officeNumber);
-        employeeTeam.push(manager);
-        teamOptions();
+        //const manager = new Manager(answers.name, answers.id ,answers.email, answers.officeNumber);
+        //employeeTeam.push(manager);
+        startPrompt();
     });
 }
 
-//options to add intern or engineer to team or confirm tean
-function teamOptions() {
-    inquirer.prompt([
-    //Manager office number
-    {
-        name: 'team',
-        type: 'list',
-        message: 'I would like to: ',
-        choices: ['Add an Engineer', 'Add an Intern', 'Confirm my team'],
-    },
-    ])
-
-    .then((answers) => {
-        if(answers.team === 'Add an Engineer') {
-            console.log('Engineer selected')
-            teamMemberInfo(answers.team);
-            return;
-        } else if(answers.team === 'Add an Intern') {
-            console.log('Intern selected')
-            teamMemberInfo(answers.team);
-            return;
-        } else if(answers.team === 'Confirm my team') {
-            confirmTeam();
-            return;
-        }
+function viewDepartments() {
+    //query to get all departments
+    db.query('SELECT*FROM department', function (err, result) {
+        if (err) throw err;
+        console.log(result);
+        startPrompt();
     });
-};
+}
+
+function viewRoles() {
+    //query to get all roles
+    db.query('SELECT*FROM department_role', function (err, result) {
+        if (err) throw err;
+        console.log(result);
+        startPrompt();
+    });
+}
+
+function viewEmployees() {
+    //query to get all employees
+    db.query('SELECT*FROM employee', function (err, result) {
+        if (err) throw err;
+        console.log(result);
+        startPrompt();
+    });
+}
 
 function confirmTeam() {
     console.log (`You have ${employeeTeam.length} member/s in your team`);
@@ -148,148 +177,21 @@ function confirmTeam() {
   
                               Successfully created team profile`
     );
-    fs.writeFileSync('example-index.html', generateHTML(employeeTeam)), (err) => console.error(err);
-
+    fs.writeFileSync('example-index.html', generateDATABASE(employeeTeam)), (err) => console.error(err);
 }
 
-function teamMemberInfo(roleSelected) {
-        inquirer.prompt([
-
-    //Employee name
-    {
-        name: 'name',
-        type: 'input',
-        message: `Enter the ${roleSelected.replace('Add an ', '')}\'s name`,
-        validate: function(name) {
-            if (name) {
-              return true;
-            } else {
-              return `Please enter the employee\'s name`;
-            }
-        }
-    },
-    
-    //Employee email
-    {
-        name: 'email',
-        type: 'input',
-        message: (answers) => `Enter ${answers.name}\'s email`,
-        validate: function(email) {
-            let test = email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/); //regex from https://www.w3resource.com/javascript/form/email-validation.php
-            if (test) {
-              return true;
-            } else {
-              return 'Please enter a valid email address.';
-            }
-        }
-    }, 
-
-    //Employee id
-    {
-        name: 'id',
-        type: 'number',
-        message: (answers) => `Enter ${answers.name}\'s id number`,
-        validate: function(id) {
-            if (id) {
-              return true;
-            } else {
-              return `Please enter ${answers.name}\'s id number`;
-            }
-        }
-    }, 
-
-    //Engineer github
-    {
-        name: 'github',
-        type: 'input',
-        message: (answers) => `Please enter ${answers.name}\'s Github username`,
-        when: roleSelected === 'Add an Engineer',
-    },
-
-    //Intern school
-    {
-        name: 'school',
-        type: 'input',
-        message: (answers) => `Please enter the school ${answers.name} studied at`,
-        when: roleSelected === 'Add an Intern',
-    },
-
-    ])
-    //call teamOptions again
-    .then((answers) => {
-        if (roleSelected === 'Add an Intern') {
-        teamMember = new Intern(answers.name, answers.id,answers.email, answers.school);
-        }
-        else if (roleSelected === 'Add an Engineer') {
-        teamMember = new Engineer(answers.name, answers.id,answers.email, answers.github);
-        }
-
-        employeeTeam.push(teamMember)
-        console.log(`${teamMember.getRole()} added`)
-        teamOptions();
-    });
+const generateDB = (employeeTeam) => {
+/*Insert answers to table fields here*/
 };
-
-function members(employeeTeam) {
-    let data= '';
-    for (let index = 0; index < employeeTeam.length; index++) {
-
-        data += `<div class="col-sm-6 col-lg-4">
-        <div class="card mx-1 mb-2 mt-2">
-        <div class="card-header">
-                <h1 class="card-title">${employeeTeam[index].name}</h1>
-                <h6 class="card-subtitle mb-2">`
-                
-                if (employeeTeam[index].getRole() ==='Engineer') {
-                data += `<i class="fas fa-laptop-code"></i>`
-                }
-
-                if (employeeTeam[index].getRole() === 'Manager') {
-                    data += `<i class="fas fa-users"></i>`
-                }
-
-                if (employeeTeam[index].getRole() === 'Intern') {
-                    data += `<i class="fas fa-user-circle"></i> `
-                }
-
-                data += `   ${employeeTeam[index].getRole()}</h6>
-                </div>
-                <div class="card-body">
-
-                <ul class="list-group">
-                    <li class="list-group-item"><i class="fas fa-id-card-alt"></i> Employment ID: ${employeeTeam[index].id}</li>
-                    <li class="list-group-item"><i class="far fa-envelope"></i> Email: <a href="mailto:${employeeTeam[index].email}">${employeeTeam[index].email}</a></li>`
-
-                    if (employeeTeam[index].getRole() === 'Engineer') {
-                    data +=`<li class="list-group-item"><i class="fab fa-github"></i> GitHub: <a href="https://github.com/${employeeTeam[index].github}" target="_blank">${employeeTeam[index].github}</a></li>`
-                    }
-                    if (employeeTeam[index].getRole() === 'Intern') {
-                    data +=`<li class="list-group-item"><i class="fas fa-graduation-cap"></i> School: ${employeeTeam[index].school}</li>`
-                    }
-                    if (employeeTeam[index].getRole() === 'Manager') {
-                    data +=`<li class="list-group-item"><i class="fas fa-phone-alt"></i> Office Number: ${employeeTeam[index].officeNumber}</li>`
-                    }
-
-            data += `</ul>
-            </div>
-            </div>
-            </div>`
-    }
-    return data;
-}
-
-const generateDB = (employeeTeam) =>
-    /*Insert answers to table fields here*/
-;
 
 const init = () => {
     console.log(`
-                ____________________TEAM PROFILE GENERATOR______________________
+                ____________________EMPLOYEE TRACKER______________________
   
-                    Follow the prompts to generate a team profile
+                    An easy way to manage employee data
                     
                     `)
-      initManager()
+      startPrompt()
 };
  
 init();
