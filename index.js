@@ -167,7 +167,7 @@ function AddEmployee() {
 
 function viewDepartments() {
     //query to get all departments
-    db.query('SELECT department.department_name As Departments FROM department', function (err, result) {
+    db.query('SELECT department.id As id, department.department_name As Departments FROM department', function (err, result) {
         console.table(result);
         startPrompt();
     });
@@ -176,12 +176,16 @@ function viewDepartments() {
 function viewRoles() {
     //query to get all roles
     //db.query(`DESCRIBE department_role`, function (err, result) {
-    db.query('SELECT*FROM department_role', function (err, result) {
+    db.query(`SELECT department_role.title As Job_Title, 
+    department_role.id As role_id, 
+    department.department_name As Department, 
+    department_role.salary As Salary FROM department_role 
+    JOIN department ON department_role.department_id = department.id`, function (err, result) {
         if (err) throw err;
-        
-        result.forEach(res => {
+        console.table(result);
+        /*result.forEach(res => {
             console.log(`${res.title} | $${res.salary} | ${res.department_id}`);
-        });
+        });*/
         startPrompt();
     });
 }
@@ -191,6 +195,7 @@ function viewEmployees() {
     db.query('SELECT*FROM employee', function (err, result) {
         if (err) throw err;
         console.log(result);
+        console.table(result);
         startPrompt();
     });
 }
