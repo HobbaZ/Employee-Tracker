@@ -89,7 +89,7 @@ function addDepartment() {
     //let values = answers.departmentAdd;
     db.query({ 
         sql: 'INSERT INTO department (department_name) VALUES (?)',
-        values: answers.departmentAdd
+        values: [answers.departmentAdd]
     },
         function (err, result) {
         if (err) throw err;
@@ -99,7 +99,7 @@ function addDepartment() {
 })
 };
 
-function AddEmployee() {
+function addEmployee() {
     inquirer.prompt([
         //Employee name
     {
@@ -159,10 +159,47 @@ function AddEmployee() {
     ])
 
     .then((answers) => {
-        db.query(`INSERT INTO `)
-        //const manager = new Manager(answers.name, answers.id ,answers.email, answers.officeNumber);
-        //employeeTeam.push(manager);
-        startPrompt();
+        db.query({ 
+            sql: 'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)',
+            values: [answers.firstName, answers.lastName, answers.role, answers.manager_id]
+        },
+            function (err, result) {
+            if (err) throw err;
+            console.log(`${answers.firstName, answers.lastName} has been added to department list`);
+            startPrompt();
+    });
+    })
+    };
+
+function updateEmployee() {
+    employeeList = []
+    //Select employee to update
+    inquirer.prompt([
+        {
+        name: 'chooseEmployee',
+        type: 'list',
+        message: 'Choose the employee\'s record you want to update',
+        choices:[employeeList],
+        validate: function(chooseEmployee) {
+            if (chooseEmployee) {
+                return true;
+            } else {
+                return 'Please choose the employee\'s record you want to update';
+            }
+        }
+    },
+    //title, salary department_id questions with when: statement, 
+    ])
+    .then((answers) => {
+        db.query({ 
+            sql: 'INSERT INTO department_role (title,salary,department_id) VALUES (?)',
+            values: [answers.chooseEmployee]
+        },
+            function (err, result) {
+            if (err) throw err;
+            console.log(`${answers.chooseEmployee}\'s role has been updated`);
+            startPrompt();
+    });
     });
 }
 
@@ -207,29 +244,6 @@ function viewEmployees() {
         startPrompt();
     });
 }
-
-
-
-/*function confirmTeam() {
-    console.log (`You have ${employeeTeam.length} member/s in your team`);
-    //print team members
-    console.log('Your Team Consists Of: ')
-
-    employeeTeam.forEach(member => {
-        console.log(member);
-    })
-
-    console.log(`
-                                        Finished!
-  
-                              Successfully created team profile`
-    );
-    fs.writeFileSync('example-index.html', generateDATABASE(employeeTeam)), (err) => console.error(err);
-}
-
-const generateDB = (employeeTeam) => {
-Insert answers to table fields here
-};*/
 
 const init = () => {
     console.log(`
