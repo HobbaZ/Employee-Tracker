@@ -88,12 +88,12 @@ function addDepartment() {
 .then((answers) => {
     //let values = answers.departmentAdd;
     db.query({ 
-        sql: 'INSERT INTO department (department_name) VALUES ?',
-        values: ['answers.departmentAdd']
+        sql: 'INSERT INTO department (department_name) VALUES (?)',
+        values: answers.departmentAdd
     },
         function (err, result) {
         if (err) throw err;
-        console.log(result + "has been added to department list");
+        console.log(`${answers.departmentAdd} has been added to department list`);
         startPrompt();
 });
 })
@@ -119,7 +119,7 @@ function AddEmployee() {
     {
         name: 'lastName',
         type: 'input',
-        message: 'Enter the employee\'s name',
+        message: 'Enter the employee\'s last name',
         validate: function(lastName) {
             if (lastName) {
                 return true;
@@ -159,6 +159,7 @@ function AddEmployee() {
     ])
 
     .then((answers) => {
+        db.query(`INSERT INTO `)
         //const manager = new Manager(answers.name, answers.id ,answers.email, answers.officeNumber);
         //employeeTeam.push(manager);
         startPrompt();
@@ -175,12 +176,11 @@ function viewDepartments() {
 
 function viewRoles() {
     //query to get all roles
-    //db.query(`DESCRIBE department_role`, function (err, result) {
     db.query(`SELECT department_role.title As Job_Title, 
     department_role.id As role_id, 
     department.department_name As Department, 
     department_role.salary As Salary FROM department_role 
-    JOIN department ON department_role.department_id = department.id`, function (err, result) {
+    INNER JOIN department ON department_role.department_id = department.id`, function (err, result) {
         if (err) throw err;
         console.table(result);
         /*result.forEach(res => {
@@ -192,13 +192,23 @@ function viewRoles() {
 
 function viewEmployees() {
     //query to get all employees
-    db.query('SELECT*FROM employee', function (err, result) {
+    db.query(`SELECT employee.id As id, employee.first_name, employee.last_name, 
+    department_role.title As Job_Title,
+    department.department_name As Department,
+    department_role.salary As Salary,
+    CONCAT (m.first_name,' ',m.last_name) As Manager
+    FROM employee
+
+    LEFT JOIN department_role ON employee.role_id = department_role.id
+    INNER JOIN department ON department_role.department_id = department.id
+    LEFT JOIN employee m ON m.id = employee.manager_id`, function (err, result) {
         if (err) throw err;
-        console.log(result);
         console.table(result);
         startPrompt();
     });
 }
+
+
 
 /*function confirmTeam() {
     console.log (`You have ${employeeTeam.length} member/s in your team`);

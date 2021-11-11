@@ -107,14 +107,10 @@ List tech stack you used to create your project here (e.g. Node.js, Inquirer npm
 You can also contribute by opening a pull request or submitting an issue
 
 ## Acknowledgements
-Put url's of website's that helped you in creating your project here.
-E.g.
 
-[Google Fonts Lalezar](https://fonts.google.com/specimen/Lalezar?category=Display#standard-styles)
+[https://www.w3schools.com/sql/default.asp](https://www.w3schools.com/sql/default.asp)
 
-[Shields.io](https://shields.io/)
-
-[Coolers](https://coolors.co/)
+[https://www.sqlservertutorial.net/sql-server-basics/sql-server-self-join/](https://www.sqlservertutorial.net/sql-server-basics/sql-server-self-join/)
 
 ## Testing
 List any unit tests you've created for your project here
