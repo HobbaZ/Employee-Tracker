@@ -2,7 +2,9 @@
 const inquirer = require('inquirer');
 require('dotenv').config()
 const fs = require('fs');
-const generateDATABASE = require('./generateDATABASE');
+const cTable = require('console.table');
+
+//const generateDATABASE = require('./generateDATABASE');
 
 const mysql = require('mysql2');
 
@@ -17,8 +19,6 @@ const db = mysql.createConnection(
     console.log(`Connected to the employee_db database.`)
 );
 
-const employeeTeam = [];
-
 /*Need to start prompts with selector with all depts, all roles, 
 all employees, add ept, add role, add employee and update role*/
 
@@ -29,45 +29,74 @@ function startPrompt() {
         type: 'list',
         message: 'I would like to: ',
         choices: ['View All Departments', 'View All Roles', 'View All Employees', 
-        'Add A Role', 'Add A Employee', 'Update Employee Role'],
+        'Add A Department Role', 'Add An Employee', 'Update Employee Role'],
     },
     ])
 
     .then((answers) => { //convert to switch statement
-        if(answers.options === 'View All Departments') {
-            console.log('View All Departments selected')
-            viewDepartments();
-            return;
+        let option = answers.options
+        switch (option) {
+            case 'View All Departments':
+                console.log('View All Departments selected\n')
+                viewDepartments();
+                break;
 
-        } else if(answers.options === 'View All Roles') {
-            console.log('View All Roles selected')
-            viewRoles();
-            return;
+            case 'View All Roles':
+                console.log('View All Roles selected\n')
+                viewRoles();
+                break;
 
-        } else if(answers.options === 'View All Employees') {
-            console.log('View All Employees selected')
-            viewEmployees();
-            return;
-        } //other options
+            case 'View All Employees':
+                console.log('View All Employees selected\n')
+                viewEmployees();
+                break;
+
+            case 'Add A Department Role':
+                console.log('Add A Department Role selecte\n')
+                addDepartment();
+                break;
+
+            case 'Add An Employee':
+                console.log('Add An Employee selected\n')
+                addEmployee();
+                break;
+
+            case 'Update Employee Role':
+                console.log('Update Employee Role selected\n')
+                updateEmployee();
+                break;
+        }
     });
 };
 
 function addDepartment() {
-        inquirer.prompt([
-            //Department name
-        {
-        name: 'departmentName',
-        type: 'input',
-        message: 'Enter the department name you want to add',
-        validate: function(departmentName) {
-            if (departmentName) {
-                return true;
-            } else {
-                return 'Please enter the department name you want to add';
-            }
+    
+    inquirer.prompt([
+    {
+    name: 'departmentAdd',
+    type: 'input',
+    message: 'Enter the department name you want to add',
+    validate: function(departmentAdd) {
+        if (departmentAdd) {
+            return true;
+        } else {
+            return 'Please enter the department name you want to add';
         }
+    }
+},
+])
+.then((answers) => {
+    //let values = answers.departmentAdd;
+    db.query({ 
+        sql: 'INSERT INTO department (department_name) VALUES ?',
+        values: ['answers.departmentAdd']
     },
-    ]);
+        function (err, result) {
+        if (err) throw err;
+        console.log(result + "has been added to department list");
+        startPrompt();
+});
+})
 };
 
 function AddEmployee() {
@@ -90,7 +119,7 @@ function AddEmployee() {
     {
         name: 'lastName',
         type: 'input',
-        message: 'Enter the team manager\'s name',
+        message: 'Enter the employee\'s name',
         validate: function(lastName) {
             if (lastName) {
                 return true;
@@ -138,18 +167,21 @@ function AddEmployee() {
 
 function viewDepartments() {
     //query to get all departments
-    db.query('SELECT*FROM department', function (err, result) {
-        if (err) throw err;
-        console.log(result);
+    db.query('SELECT department.department_name As Departments FROM department', function (err, result) {
+        console.table(result);
         startPrompt();
     });
 }
 
 function viewRoles() {
     //query to get all roles
+    //db.query(`DESCRIBE department_role`, function (err, result) {
     db.query('SELECT*FROM department_role', function (err, result) {
         if (err) throw err;
-        console.log(result);
+        
+        result.forEach(res => {
+            console.log(`${res.title} | $${res.salary} | ${res.department_id}`);
+        });
         startPrompt();
     });
 }
@@ -163,7 +195,7 @@ function viewEmployees() {
     });
 }
 
-function confirmTeam() {
+/*function confirmTeam() {
     console.log (`You have ${employeeTeam.length} member/s in your team`);
     //print team members
     console.log('Your Team Consists Of: ')
@@ -181,8 +213,8 @@ function confirmTeam() {
 }
 
 const generateDB = (employeeTeam) => {
-/*Insert answers to table fields here*/
-};
+Insert answers to table fields here
+};*/
 
 const init = () => {
     console.log(`
