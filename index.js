@@ -132,13 +132,13 @@ function addEmployee() {
      //Employee role
      {
         name: 'role',
-        type: 'input',
-        message: (answers) => `Enter ${answers.firstName} ${answers.lastName}\'s department role`,
+        type: 'number',
+        message: (answers) => `Enter ${answers.firstName} ${answers.lastName}\'s department role number`,
         validate: function(role) {
             if (role) {
               return true;
             } else {
-              return 'Please enter the employee\'s department role';
+              return 'Please enter the employee\'s department role number';
             }
         }
     },
@@ -147,12 +147,12 @@ function addEmployee() {
     {
         name: 'manager_id',
         type: 'number',
-        message: (answers) => `Enter ${answers.firstName} ${answers.lastName}\'s manager id`,
+        message: (answers) => `Enter ${answers.firstName} ${answers.lastName}\'s managers id number`,
         validate: function(manager_id) {
             if (manager_id) {
               return true;
             } else {
-              return 'Please enter the employee\'s manager id';
+              return 'Please enter the employee\'s manager id number';
             }
         }
     }, 
@@ -165,47 +165,91 @@ function addEmployee() {
         },
             function (err, result) {
             if (err) throw err;
-            console.log(`${answers.firstName, answers.lastName} has been added to department list`);
+            console.log(`${answers.firstName} ${answers.lastName} has been added to employee list`);
             startPrompt();
     });
     })
     };
 
 function updateEmployee() {
-    employeeList = []
+    
     //Select employee to update
+    db.query('SELECT * FROM employee', function (err, result) {
+        if (err) throw err;
+        
     inquirer.prompt([
         {
-        name: 'chooseEmployee',
-        type: 'list',
-        message: 'Choose the employee\'s record you want to update',
-        choices:[employeeList],
-        validate: function(chooseEmployee) {
-            if (chooseEmployee) {
-                return true;
-            } else {
-                return 'Please choose the employee\'s record you want to update';
-            }
+            name: 'employeeName',
+            type: 'list',
+            message: 'Update employee details for: ',
+            choices: function() {
+                let employees = [];
+                result.forEach(res => {
+                employees.push(`${res.first_name} ${res.last_name}`);
+            })
+            return employees;
         }
-    },
-    //title, salary department_id questions with when: statement, 
-    ])
-    .then((answers) => {
-        db.query({ 
-            sql: 'INSERT INTO department_role (title,salary,department_id) VALUES (?)',
-            values: [answers.chooseEmployee]
-        },
-            function (err, result) {
-            if (err) throw err;
-            console.log(`${answers.chooseEmployee}\'s role has been updated`);
-            startPrompt();
-    });
+    }
+        ])
+        .then((answers)  => {
+            inquirer.prompt([
+                {
+                    name: 'updateOptions',
+                    type: 'list',
+                    message: `Update ${answers.employeeName}\'s database record by`,
+                    choices: ['Updating Title', 'Updating Role', 'Updating Salary', 
+                    'Add A Department Role', 'Add An Employee', 'Update Employee Role'],
+                },
+                ])
+                .then((answers) => {
+                    let update = answers.updateOptions
+                    switch (update) {
+                        case 'Updating Title':
+                            updateTitle();
+                            break;
+
+                        case 'Updating Role':
+                            updateRole();
+                            break;
+                    }
+                })
+        });
     });
 }
+
+function updateTitle() {
+
+}
+
+function updateRole() {
+    db.query(`SELECT*FROM department_role`, function (err, result) {
+        if (err) throw err;
+        
+        inquirer.prompt([
+            {
+                name: 'updateRole',
+                type: 'list',
+                message: `${answers.employeeName}\'s new role : `,
+                choices: function() {
+                    let roles = [];
+                    result.forEach(res => {
+                    roles.push(`${res.title}`);
+                })
+                return roles;
+            }
+        }
+            ])
+            .then((answers)  => {
+                console.log(`${answers.employeeName}\'s role has been updated to ${answers.updateRole}`);
+                startPrompt();
+            });
+        });
+    }
 
 function viewDepartments() {
     //query to get all departments
     db.query('SELECT department.id As id, department.department_name As Departments FROM department', function (err, result) {
+        if (err) throw err;
         console.table(result);
         startPrompt();
     });
@@ -220,9 +264,7 @@ function viewRoles() {
     INNER JOIN department ON department_role.department_id = department.id`, function (err, result) {
         if (err) throw err;
         console.table(result);
-        /*result.forEach(res => {
-            console.log(`${res.title} | $${res.salary} | ${res.department_id}`);
-        });*/
+ 
         startPrompt();
     });
 }
