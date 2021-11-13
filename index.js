@@ -7,6 +7,7 @@ const cTable = require('console.table');
 //const generateDATABASE = require('./generateDATABASE');
 
 const mysql = require('mysql2');
+const { getPriority } = require('os');
 
 // Connect to database
 const db = mysql.createConnection(
@@ -68,6 +69,10 @@ function startPrompt() {
         }
     });
 };
+
+db.query("SELECT * from department", function (error, res) {
+    showdepartments = res.map(dep => ({ name: dep.name, value: dep.id }))
+  })
 
 function addDepartment() {
     
@@ -174,7 +179,7 @@ function addEmployee() {
 function updateEmployee() {
     
     //Select employee to update
-    db.query('SELECT * FROM employee', function (err, result) {
+    db.query('SELECT employee.first_name, employee.last_name, employee.role_id FROM employee', function (err, result) {
         if (err) throw err;
         
     inquirer.prompt([
@@ -186,50 +191,50 @@ function updateEmployee() {
                 let employees = [];
                 result.forEach(res => {
                 employees.push(`${res.first_name} ${res.last_name}`);
-            })
+            });
             return employees;
+
         }
     }
         ])
-        .then((answers)  => {
-            inquirer.prompt([
-                {
-                    name: 'updateOptions',
-                    type: 'list',
-                    message: `Update ${answers.employeeName}\'s database record by`,
-                    choices: ['Updating Title', 'Updating Role', 'Updating Salary', 
-                    'Add A Department Role', 'Add An Employee', 'Update Employee Role'],
-                },
-                ])
-                .then((answers) => {
-                    let update = answers.updateOptions
-                    switch (update) {
-                        case 'Updating Title':
-                            updateTitle();
-                            break;
-
-                        case 'Updating Role':
-                            updateRole();
-                            break;
+        .then((name)  => {
+            db.query(`SELECT department_role.id, department_role.title FROM department_role`, function (err, result) {
+                if (err) throw err;
+                
+                inquirer.prompt([
+                    {
+                        name: 'updateRole',
+                        type: 'list',
+                        message: `${name.employeeName}\'s new role: `,
+                        choices: function() {
+                            let roles = [];
+                            result.forEach(res => {
+                            roles.push(`${res.title}`);
+                        })
+                        return roles;
                     }
-                })
+                }
+                    ])
+                    .then((answers)  => {
+                        console.log(`${name.employeeName}\'s role has been updated to ${answers.updateRole}`);
+                        db.query(`UPDATE employee SET WHERE employee.role_id = ${answers.updateRole} && CONCAT(employee.first_name, ,employee.last_name) = ${name.employeeName}`, function (err, result) {
+                            if (err) throw err;
+                        });
+                    });
+                });
         });
     });
 }
 
-function updateTitle() {
-
-}
-
-function updateRole() {
-    db.query(`SELECT*FROM department_role`, function (err, result) {
+function updateRole(answers) {
+    db.query(`SELECT department_role.title FROM department_role`, function (err, result) {
         if (err) throw err;
         
         inquirer.prompt([
             {
                 name: 'updateRole',
                 type: 'list',
-                message: `${answers.employeeName}\'s new role : `,
+                message: `${answers}\'s new role: `,
                 choices: function() {
                     let roles = [];
                     result.forEach(res => {
@@ -240,9 +245,18 @@ function updateRole() {
         }
             ])
             .then((answers)  => {
-                console.log(`${answers.employeeName}\'s role has been updated to ${answers.updateRole}`);
-                startPrompt();
+                console.log(`${name}\'s role has been updated to ${answers.updateRole}`);
+                //db.query(`UPDATE employee SET WHEN ${name.role_id} != ${answers.updateRole}`)
+                //db.query(` UPDATE employee SET role_id = ${answers.updateRole} WHERE employee.id = ${name.id}`)
+                
             });
+        });
+    }
+
+    function getId(name) {
+        let getId = db.query(`SELECT * FROM employee WHEN LIKE employee.first_name && employee.last_name = ${name}`, function (err, result) {
+            if (err) throw err;
+            console.log(result)
         });
     }
 
