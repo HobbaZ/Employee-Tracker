@@ -1,7 +1,6 @@
 # Employee-Tracker
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)
-![License](https://img.shields.io/badge/Made%20with-Markdown-darkgreen.svg)
 [![Github Commits](https://img.shields.io/github/commit-activity/w/HobbaZ/Employee-Tracker)](https://github.com/HobbaZ/Employee-Tracker/commits)
 [![GitHub latest commit](https://img.shields.io/github/last-commit/HobbaZ/Employee-Tracker)](https://github.com/HobbaZ/Employee-Tracker/branches)
 [![GitHub followers](https://img.shields.io/github/followers/HobbaZ.svg)]()
@@ -13,16 +12,13 @@
 
 ## Description
 ### Project Aim ###
-
-
-### What Problem Does It Solve ###
-Solves the programmer's most gruelling and hated task, documentation.
+To create a command line application that allows the user to input details about their business structure and employees and view and make changes to that info.
 
 ### What I Learnt ###
-Put what skills you learnt or advanced upon here.
+Connecting MySQL to Inquirer, various MySQL queries, how to use escaped values for queries.
 
 ## Deployment
-You can view the [website link](https://github.com/HobbaZ/Employee-Tracker) here. 
+You can view the [youtube walkthrough link](https://github.com/HobbaZ/Employee-Tracker) here. 
 
 
 ## Table of Contents
@@ -74,32 +70,27 @@ WHEN I choose to update an employee role
 THEN I am prompted to select an employee to update and their new role and this information is updated in the database
 
 ## Screenshots
+![Start screen](./assets/images/startPrompt.PNG)
 
+1[Image of prompts]()
 
 ## Installation
 You will need: 
-Github, VS Code, Gitbash
+node.js, Inquirer, 
 
-1. Click Use this Template
-2. Enter a name for your repo
-3. Git clone new repo to your computer by right clicking SSH link in your repo, then open gitbash and type:
-
-    'git clone' 
-    
-    Then right click next to git clone text and your SSh link will be pasted in for you, hit enter and wait as it compiles
-
-4. Open the repo in your editor software and edit the README to your values
+1. Clone the repo to your computer
+2. Run 'npm i' in Terminal  
+3. Run node index.js to start program
 
 ## Features
-- Clickable table of contents
-- Easily modifiable for more sections, more images, etc
-- Badges
+- Add, delete and update Employee information
+- Add and view all departments
+- Add and view all department roles
 
 ## Technology
-List tech stack you used to create your project here (e.g. Node.js, Inquirer npm package, Github API)
-- Github
-- 
-- 
+- Inquirer
+- MySQL
+- Console.Table
 
 ## Contributors
 [Zachary Hobba](https://github.com/HobbaZ)
@@ -110,18 +101,14 @@ You can also contribute by opening a pull request or submitting an issue
 
 [https://www.w3schools.com/sql/default.asp](https://www.w3schools.com/sql/default.asp)
 
+[https://stackoverflow.com/questions/4249079/mysql-delete-all-rows-containing-string-foo-in-table-bar](https://stackoverflow.com/questions/4249079/mysql-delete-all-rows-containing-string-foo-in-table-bar)
+
 [https://www.sqlservertutorial.net/sql-server-basics/sql-server-self-join/](https://www.sqlservertutorial.net/sql-server-basics/sql-server-self-join/)
 
 ## Testing
-List any unit tests you've created for your project here
+No tests created
 
 ## License
-
-This is the licence conditions you apply to your project (e.g. limitations on how it can be used, if they need to attribute you as the creator). 
-
-**Remember to change the copyright text to the current year and your name!**
-
-View licences available at [choosealicence website](https://choosealicense.com/licenses/)
 
 MIT
 
@@ -133,7 +120,6 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ## Questions
-Change these to your values
 
 Find me on Github at [HobbaZ](https://github.com/HobbaZ)
 Email me at [zachobba@gmail.com](zachobba@gmail.com)

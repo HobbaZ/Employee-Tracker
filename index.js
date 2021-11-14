@@ -30,7 +30,7 @@ function startPrompt() {
         type: 'list',
         message: 'I would like to: ',
         choices: ['View All Departments', 'View All Roles', 'View All Employees', 
-        'Add A Department Role', 'Add An Employee', 'Update Employee Role'],
+        'Add A Department Role', 'Add An Employee', 'Delete An Employee', 'Update Employee Role', 'Return To Menu', "Exit"],
     },
     ])
 
@@ -62,9 +62,24 @@ function startPrompt() {
                 addEmployee();
                 break;
 
+            case 'Delete An Employee':
+                console.log('Delete An Employee selected\n')
+                deleteEmployee();
+                break;
+
             case 'Update Employee Role':
                 console.log('Update Employee Role selected\n')
-                updateEmployee();
+                updateRole();
+                break;
+
+            case 'Return To Menu':
+                console.log('Return To Menu selected\n')
+                startPrompt()
+                break;
+
+            case 'Exit':
+                console.log('Exit selected\n')
+                db.end();
                 break;
         }
     });
@@ -176,89 +191,91 @@ function addEmployee() {
     })
     };
 
-function updateEmployee() {
+function updateRole() {
     
-    //Select employee to update
-    db.query('SELECT employee.first_name, employee.last_name, employee.role_id FROM employee', function (err, result) {
+    db.query(`SELECT employee.first_name, employee.last_name FROM employee`, function (err, result) {
         if (err) throw err;
-        
-    inquirer.prompt([
-        {
-            name: 'employeeName',
-            type: 'list',
-            message: 'Update employee details for: ',
-            choices: function() {
-                let employees = [];
-                result.forEach(res => {
-                employees.push(`${res.first_name} ${res.last_name}`);
-            });
-            return employees;
 
-        }
-    }
-        ])
-        .then((name)  => {
-            db.query(`SELECT department_role.id, department_role.title FROM department_role`, function (err, result) {
-                if (err) throw err;
-                
-                inquirer.prompt([
-                    {
-                        name: 'updateRole',
-                        type: 'list',
-                        message: `${name.employeeName}\'s new role: `,
-                        choices: function() {
-                            let roles = [];
-                            result.forEach(res => {
-                            roles.push(`${res.title}`);
-                        })
-                        return roles;
-                    }
-                }
-                    ])
-                    .then((answers)  => {
-                        console.log(`${name.employeeName}\'s role has been updated to ${answers.updateRole}`);
-                        db.query(`UPDATE employee SET WHERE employee.role_id = ${answers.updateRole} && CONCAT(employee.first_name, ,employee.last_name) = ${name.employeeName}`, function (err, result) {
-                            if (err) throw err;
-                        });
-                    });
+        inquirer.prompt([
+            {
+                name: 'employeeName',
+                type: 'list',
+                message: 'Update employee details for: ',
+                choices: function() {
+                    let employees = [];
+                    result.forEach(res => {
+                    employees.push(`${res.first_name} ${res.last_name}`);
                 });
-        });
+                return employees;
+            }
+        }
+        ])
+    .then((getname)  => {
+        db.query(`SELECT department_role.title As Job_Title, 
+    department_role.id As role_id, 
+    department.department_name As Department, 
+    department_role.salary As Salary FROM department_role 
+    INNER JOIN department ON department_role.department_id = department.id`, function (err, result) {
+        if (err) throw err;
+        console.table(result);
     });
-}
 
-function updateRole(answers) {
-    db.query(`SELECT department_role.title FROM department_role`, function (err, result) {
+    db.query(`SELECT department_role.title, department_role.id FROM department_role`, function (err, result) {
         if (err) throw err;
         
         inquirer.prompt([
             {
-                name: 'updateRole',
+                name: 'roleName',
                 type: 'list',
-                message: `${answers}\'s new role: `,
+                message: `What is ${getname.employeeName}\'s new role_id number: `,
                 choices: function() {
                     let roles = [];
                     result.forEach(res => {
-                    roles.push(`${res.title}`);
-                })
+                    roles.push(`${res.id}`);
+                });
                 return roles;
             }
         }
-            ])
+        ])
             .then((answers)  => {
-                console.log(`${name}\'s role has been updated to ${answers.updateRole}`);
-                //db.query(`UPDATE employee SET WHEN ${name.role_id} != ${answers.updateRole}`)
-                //db.query(` UPDATE employee SET role_id = ${answers.updateRole} WHERE employee.id = ${name.id}`)
-                
+                db.query(`UPDATE employee SET role_id = ${answers.roleName} WHERE CONCAT(employee.first_name, ' ', employee.last_name) LIKE '%${getname.employeeName}%'`, function (err, result) {
+                    if (err) throw err;
+                    console.log(`${getname.employeeName}\'s role has been updated to ${answers.roleName}`);
+                    startPrompt();
+                }); 
             });
         });
-    }
+    })
+});
+}
 
-    function getId(name) {
-        let getId = db.query(`SELECT * FROM employee WHEN LIKE employee.first_name && employee.last_name = ${name}`, function (err, result) {
-            if (err) throw err;
-            console.log(result)
-        });
-    }
+function deleteEmployee() {
+    db.query(`SELECT employee.first_name, employee.last_name FROM employee`, function (err, result) {
+        if (err) throw err;
+
+        inquirer.prompt([
+            {
+                name: 'employeeName',
+                type: 'list',
+                message: 'Update employee details for: ',
+                choices: function() {
+                    let employees = [];
+                    result.forEach(res => {
+                    employees.push(`${res.first_name} ${res.last_name}`);
+                });
+                return employees;
+            }
+        }
+        ])
+        .then ((answers) => {
+            db.query(`DELETE FROM employee WHERE CONCAT(employee.first_name, ' ', employee.last_name) LIKE '%${answers.employeeName}%'`, function (err, result) {
+                if (err) throw err;
+                console.log(`Deleted ${answers.employeeName} from employee table`)
+                startPrompt();
+        })
+    })
+})
+}
 
 function viewDepartments() {
     //query to get all departments
@@ -305,7 +322,7 @@ const init = () => {
     console.log(`
                 ____________________EMPLOYEE TRACKER______________________
   
-                    An easy way to manage employee data
+                           An easy way to manage employee data
                     
                     `)
       startPrompt()
