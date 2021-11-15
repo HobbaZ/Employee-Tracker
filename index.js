@@ -30,7 +30,7 @@ function startPrompt() {
         type: 'list',
         message: 'I would like to: ',
         choices: ['View All Departments', 'View All Roles', 'View All Employees', 
-        'Add A Department Role', 'Add An Employee', 'Delete An Employee', 'Update Employee Role', 'Return To Menu', "Exit"],
+        'Add A Department Role', 'Add An Employee', 'Delete An Employee', 'Delete A Department', 'Update Employee Role', 'Return To Menu', "Exit"],
     },
     ])
 
@@ -53,7 +53,7 @@ function startPrompt() {
                 break;
 
             case 'Add A Department Role':
-                console.log('Add A Department Role selecte\n')
+                console.log('Add A Department Role selected\n')
                 addDepartment();
                 break;
 
@@ -65,6 +65,11 @@ function startPrompt() {
             case 'Delete An Employee':
                 console.log('Delete An Employee selected\n')
                 deleteEmployee();
+                break;
+
+            case 'Delete A Department':
+                console.log('Delete A Department selected\n')
+                deleteDepartment();
                 break;
 
             case 'Update Employee Role':
@@ -85,12 +90,13 @@ function startPrompt() {
     });
 };
 
-db.query("SELECT * from department", function (error, res) {
-    showdepartments = res.map(dep => ({ name: dep.name, value: dep.id }))
-  })
-
 function addDepartment() {
     
+    db.query('SELECT department.id As id, department.department_name As Departments FROM department', function (err, result) {
+        if (err) throw err;
+        console.table(result);
+    });
+
     inquirer.prompt([
     {
     name: 'departmentAdd',
@@ -105,19 +111,18 @@ function addDepartment() {
     }
 },
 ])
-.then((answers) => {
-    //let values = answers.departmentAdd;
+.then((answers) => { 
     db.query({ 
         sql: 'INSERT INTO department (department_name) VALUES (?)',
         values: [answers.departmentAdd]
     },
         function (err, result) {
         if (err) throw err;
-        console.log(`${answers.departmentAdd} has been added to department list`);
+        console.log(`${answers.departmentAdd} has been added to department list\n`);
         startPrompt();
 });
 })
-};
+}
 
 function addEmployee() {
     inquirer.prompt([
@@ -153,12 +158,12 @@ function addEmployee() {
      {
         name: 'role',
         type: 'number',
-        message: (answers) => `Enter ${answers.firstName} ${answers.lastName}\'s department role number`,
+        message: (answers) => `Enter ${answers.firstName} ${answers.lastName}\'s department role id number`,
         validate: function(role) {
             if (role) {
               return true;
             } else {
-              return 'Please enter the employee\'s department role number';
+              return 'Please enter the employee\'s department role id number';
             }
         }
     },
@@ -185,7 +190,7 @@ function addEmployee() {
         },
             function (err, result) {
             if (err) throw err;
-            console.log(`${answers.firstName} ${answers.lastName} has been added to employee list`);
+            console.log(`${answers.firstName} ${answers.lastName} has been added to employee list\n`);
             startPrompt();
     });
     })
@@ -240,13 +245,42 @@ function updateRole() {
             .then((answers)  => {
                 db.query(`UPDATE employee SET role_id = ${answers.roleName} WHERE CONCAT(employee.first_name, ' ', employee.last_name) LIKE '%${getname.employeeName}%'`, function (err, result) {
                     if (err) throw err;
-                    console.log(`${getname.employeeName}\'s role has been updated to ${answers.roleName}`);
+                    console.log(`${getname.employeeName}\'s role has been updated to ${answers.roleName}\n`);
                     startPrompt();
                 }); 
             });
         });
     })
 });
+}
+
+function deleteDepartment() {
+    db.query('SELECT department.id As id, department.department_name As Departments FROM department', function (err, result) {
+        if (err) throw err;
+        console.table(result);
+
+    inquirer.prompt([
+    {
+    name: 'departmentDelete',
+    type: 'number',
+    message: 'Enter the department id number you want to delete',
+    validate: function(departmentAdd) {
+        if (departmentAdd) {
+            return true;
+        } else {
+            return 'Please enter the department id you want to delete';
+        }
+    }
+},
+])
+.then((answers) => { 
+    db.query(`DELETE FROM department WHERE department.id = '${answers.departmentDelete}'`, function (err, result) {
+        if (err) throw err;
+        console.log(`Department id ${answers.departmentDelete} has been deleted from department list\n`);
+        startPrompt();
+});
+});
+})
 }
 
 function deleteEmployee() {
@@ -257,7 +291,7 @@ function deleteEmployee() {
             {
                 name: 'employeeName',
                 type: 'list',
-                message: 'Update employee details for: ',
+                message: 'Select employee record to remove: ',
                 choices: function() {
                     let employees = [];
                     result.forEach(res => {
@@ -270,7 +304,7 @@ function deleteEmployee() {
         .then ((answers) => {
             db.query(`DELETE FROM employee WHERE CONCAT(employee.first_name, ' ', employee.last_name) LIKE '%${answers.employeeName}%'`, function (err, result) {
                 if (err) throw err;
-                console.log(`Deleted ${answers.employeeName} from employee table`)
+                console.log(`Deleted ${answers.employeeName} from employee table\n`)
                 startPrompt();
         })
     })
@@ -294,7 +328,7 @@ function viewRoles() {
     department_role.salary As Salary FROM department_role 
     INNER JOIN department ON department_role.department_id = department.id`, function (err, result) {
         if (err) throw err;
-        console.table(result);
+        console.table(result,'\n');
  
         startPrompt();
     });
@@ -313,7 +347,7 @@ function viewEmployees() {
     INNER JOIN department ON department_role.department_id = department.id
     LEFT JOIN employee m ON m.id = employee.manager_id`, function (err, result) {
         if (err) throw err;
-        console.table(result);
+        console.table(result,'\n');
         startPrompt();
     });
 }
