@@ -84,17 +84,23 @@ node.js, Inquirer, MySQL2,
 2. Install Node.js if not already installed
 4. Create a .env file in the root directory and input your MySQL login details in it
 
-[MySQL server login guide here](https://www.mysqltutorial.org/install-mysql/)
-
 ![Example .env file](./assets/images/env.PNG)
 
-3. Run 'npm i' in Terminal inside VS Code 
-5. Run node index.js in the Terminal to start program
+[MySQL server login guide here](https://www.mysqltutorial.org/install-mysql/)
+
+5. Start the MySQL database server by running mysql -u whatever user you set -p in the Terminal, you'll then be prompted to enter your password, do so and hit enter
+
+6. Run source /db/schema.sql; to initialise the database
+
+7. Run source /db/seeds.sql; to load the test data from the seed file
+
+3. Open a new Terminal and run 'npm i' in Terminal inside VS Code 
+5. Run node index.js in the Terminal to start the program
 
 ## Features
 - Add, delete and update Employee information
-- Add and view all departments
-- Add and view all department roles
+- Add, delete and view departments
+- Add, delete and view department roles
 
 ## Technology
 - Inquirer
