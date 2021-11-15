@@ -30,7 +30,7 @@ function startPrompt() {
         type: 'list',
         message: 'I would like to: ',
         choices: ['View All Departments', 'View All Roles', 'View All Employees', 
-        'Add A Department Role', 'Add An Employee', 'Delete An Employee', 'Delete A Department', 'Update Employee Role', 'Return To Menu', "Exit"],
+        'Add A Department', 'Add A Department Role', 'Add An Employee', 'Delete An Employee', 'Delete A Department', 'Update Employee Role', 'Return To Menu', "Exit"],
     },
     ])
 
@@ -52,9 +52,14 @@ function startPrompt() {
                 viewEmployees();
                 break;
 
+            case 'Add A Department':
+                console.log('Add A Department selected\n')
+                addDepartment();
+                break;
+
             case 'Add A Department Role':
                 console.log('Add A Department Role selected\n')
-                addDepartment();
+                addDepartmentRole();
                 break;
 
             case 'Add An Employee':
@@ -95,7 +100,6 @@ function addDepartment() {
     db.query('SELECT department.id As id, department.department_name As Departments FROM department', function (err, result) {
         if (err) throw err;
         console.table(result);
-    });
 
     inquirer.prompt([
     {
@@ -121,8 +125,84 @@ function addDepartment() {
         console.log(`${answers.departmentAdd} has been added to department list\n`);
         startPrompt();
 });
+});
 })
 }
+
+function addDepartmentRole() {
+
+    db.query(`SELECT department_role.title As Job_Title, 
+    department_role.id As role_id, 
+    department.department_name As Department, 
+    department_role.salary As Salary FROM department_role 
+    INNER JOIN department ON department_role.department_id = department.id`, function (err, result) {
+        if (err) throw err;
+        console.table(result);
+    });
+
+        db.query('SELECT department.id As id, department.department_name As Departments FROM department', function (err, result) {
+            if (err) throw err;
+            console.table(result);
+
+    inquirer.prompt([
+        //role name
+    {
+        name: 'roleTitle',
+        type: 'input',
+        message: 'Enter the role title',
+        validate: function(roleTitle) {
+            if (roleTitle) {
+              return true;
+            } else {
+              return 'Please enter the role title';
+            }
+        }
+    },
+
+    //salary
+    {
+        name: 'roleSalary',
+        type: 'input',
+        message: 'Enter the role salary: $',
+        validate: function(roleSalary) {
+            if (roleSalary) {
+                return true;
+            } else {
+                return 'Please enter the role salary';
+            }
+        }
+    },
+
+     //department id
+     {
+        name: 'deptid',
+        type: 'number',
+        message: (answers) => `Enter the ${answers.roleTitle} department id number`,
+        validate: function(deptid) {
+            if (deptid) {
+              return true;
+            } else {
+              return 'Please enter the role department id number';
+            }
+        }
+    },
+    ])
+
+    .then((answers) => {
+        db.query({ 
+            sql: 'INSERT INTO department_role (title, salary, department_id) VALUES (?,?,?)',
+            values: [answers.roleTitle, answers.roleSalary, answers.deptid]
+        },
+            function (err, result) {
+            if (err) throw err;
+            console.log(`${answers.roleTitle} has been added to department role list\n`);
+            startPrompt();
+    });
+    })
+    })
+    };
+
+
 
 function addEmployee() {
     inquirer.prompt([
@@ -170,11 +250,11 @@ function addEmployee() {
 
     //Employee manager id
     {
-        name: 'manager_id',
+        name: 'managerid',
         type: 'number',
         message: (answers) => `Enter ${answers.firstName} ${answers.lastName}\'s managers id number`,
-        validate: function(manager_id) {
-            if (manager_id) {
+        validate: function(managerid) {
+            if (managerid) {
               return true;
             } else {
               return 'Please enter the employee\'s manager id number';
@@ -186,7 +266,7 @@ function addEmployee() {
     .then((answers) => {
         db.query({ 
             sql: 'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)',
-            values: [answers.firstName, answers.lastName, answers.role, answers.manager_id]
+            values: [answers.firstName, answers.lastName, answers.role, answers.managerid]
         },
             function (err, result) {
             if (err) throw err;
