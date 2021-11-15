@@ -30,7 +30,7 @@ function startPrompt() {
         type: 'list',
         message: 'I would like to: ',
         choices: ['View All Departments', 'View All Roles', 'View All Employees', 
-        'Add A Department', 'Add A Department Role', 'Add An Employee', 'Delete An Employee', 'Delete A Department', 'Update Employee Role', 'Return To Menu', "Exit"],
+        'Add A Department', 'Add A Department Role', 'Add An Employee', 'Delete An Employee', 'Delete A Department', 'Delete A Department Role', 'Update Employee Role', 'Return To Menu', "Exit"],
     },
     ])
 
@@ -75,6 +75,11 @@ function startPrompt() {
             case 'Delete A Department':
                 console.log('Delete A Department selected\n')
                 deleteDepartment();
+                break;
+
+            case 'Delete A Department Role':
+                console.log('Delete A Department Role selected\n')
+                deleteDepartmentRole();
                 break;
 
             case 'Update Employee Role':
@@ -195,14 +200,12 @@ function addDepartmentRole() {
         },
             function (err, result) {
             if (err) throw err;
-            console.log(`${answers.roleTitle} has been added to department role list\n`);
+            console.log(`${answers.roleTitle} has been added to department list\n`);
             startPrompt();
     });
     })
     })
     };
-
-
 
 function addEmployee() {
     inquirer.prompt([
@@ -362,6 +365,38 @@ function deleteDepartment() {
 });
 })
 }
+
+function deleteDepartmentRole() {
+    db.query(`SELECT department_role.title As Job_Title, 
+    department_role.id As role_id, 
+    department_role.salary As Salary FROM department_role`, function (err, result) {
+        if (err) throw err;
+        console.table(result);
+
+    inquirer.prompt([
+    {
+    name: 'departmentRoleDelete',
+    type: 'number',
+    message: 'Enter the department role id number you want to delete',
+    validate: function(departmentRoleDelete) {
+        if (departmentRoleDelete) {
+            return true;
+        } else {
+            return 'Please enter the department role id you want to delete';
+        }
+    }
+},
+])
+.then((answers) => { 
+    db.query(`DELETE FROM department_role WHERE department_role.id = '${answers.departmentRoleDelete}'`, function (err, result) {
+        if (err) throw err;
+        console.log(`Department id ${answers.departmentRoleDelete} has been deleted from department role list\n`);
+        startPrompt();
+});
+});
+})
+}
+
 
 function deleteEmployee() {
     db.query(`SELECT employee.first_name, employee.last_name FROM employee`, function (err, result) {

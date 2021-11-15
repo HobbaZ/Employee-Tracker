@@ -15,10 +15,10 @@
 To create a command line application that allows the user to input details about their business structure and employees and view and make changes to that info.
 
 ### What I Learnt ###
-Connecting MySQL to Inquirer, various MySQL queries, how to use escaped values for queries.
+Connecting MySQL to Inquirer, various MySQL queries, how to use prepared statements for query values.
 
 ## Deployment
-You can view the [youtube walkthrough link](https://github.com/HobbaZ/Employee-Tracker) here. 
+You can view the [youtube walkthrough link](https://youtu.be/PVvWmxnKlrc) here. 
 
 
 ## Table of Contents
@@ -72,15 +72,22 @@ THEN I am prompted to select an employee to update and their new role and this i
 ## Screenshots
 ![Start screen](./assets/images/startPrompt.PNG)
 
-1[Image of prompts]()
+![Image of prompts](./assets/images/viewPrompts.PNG)
+
+![Image of add department prompts](./assets/images/addDepartment.PNG)
 
 ## Installation
 You will need: 
-node.js, Inquirer, 
+node.js, Inquirer, MySQL2, 
 
-1. Clone the repo to your computer
-2. Run 'npm i' in Terminal  
-3. Run node index.js to start program
+1. Clone the repo to your computer and open it with VS Code
+2. Install Node.js if not already installed
+4. Create a .env file in the root directory and input your MySQL login details in it
+
+![Example .env file](./assets/images/env.PNG)
+
+3. Run 'npm i' in Terminal inside VS Code 
+5. Run node index.js in the Terminal to start program
 
 ## Features
 - Add, delete and update Employee information
@@ -91,6 +98,7 @@ node.js, Inquirer,
 - Inquirer
 - MySQL
 - Console.Table
+- Node.js
 
 ## Contributors
 [Zachary Hobba](https://github.com/HobbaZ)
@@ -104,6 +112,8 @@ You can also contribute by opening a pull request or submitting an issue
 [https://stackoverflow.com/questions/4249079/mysql-delete-all-rows-containing-string-foo-in-table-bar](https://stackoverflow.com/questions/4249079/mysql-delete-all-rows-containing-string-foo-in-table-bar)
 
 [https://www.sqlservertutorial.net/sql-server-basics/sql-server-self-join/](https://www.sqlservertutorial.net/sql-server-basics/sql-server-self-join/)
+
+[https://www.tutorialkart.com/nodejs/nodejs-mysql-delete/](https://www.tutorialkart.com/nodejs/nodejs-mysql-delete/)
 
 ## Testing
 No tests created
