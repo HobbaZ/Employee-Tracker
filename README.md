@@ -84,6 +84,8 @@ node.js, Inquirer, MySQL2,
 2. Install Node.js if not already installed
 4. Create a .env file in the root directory and input your MySQL login details in it
 
+[MySQL server login guide here](https://www.mysqltutorial.org/install-mysql/)
+
 ![Example .env file](./assets/images/env.PNG)
 
 3. Run 'npm i' in Terminal inside VS Code 

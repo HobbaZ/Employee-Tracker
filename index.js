@@ -4,8 +4,6 @@ require('dotenv').config()
 const fs = require('fs');
 const cTable = require('console.table');
 
-//const generateDATABASE = require('./generateDATABASE');
-
 const mysql = require('mysql2');
 const { getPriority } = require('os');
 
@@ -20,8 +18,8 @@ const db = mysql.createConnection(
     console.log(`Connected to the employee_db database.`)
 );
 
-/*Need to start prompts with selector with all depts, all roles, 
-all employees, add ept, add role, add employee and update role*/
+/*Need to start prompts with selector containing all depts, all roles, 
+all employees, add ept, add role, add employee and update role options*/
 
 function startPrompt() {
     inquirer.prompt([
@@ -34,7 +32,7 @@ function startPrompt() {
     },
     ])
 
-    .then((answers) => { //convert to switch statement
+    .then((answers) => {
         let option = answers.options
         switch (option) {
             case 'View All Departments':
@@ -100,6 +98,7 @@ function startPrompt() {
     });
 };
 
+//________ADD DEPARTMENT______________
 function addDepartment() {
     
     db.query('SELECT department.id As id, department.department_name As Departments FROM department', function (err, result) {
@@ -134,6 +133,7 @@ function addDepartment() {
 })
 }
 
+//_________ADD DEPARTMENT ROLE______________
 function addDepartmentRole() {
 
     db.query(`SELECT department_role.title As Job_Title, 
@@ -207,6 +207,7 @@ function addDepartmentRole() {
     })
     };
 
+//_________ADD EMPLOYEE______________
 function addEmployee() {
     inquirer.prompt([
         //Employee name
@@ -279,6 +280,7 @@ function addEmployee() {
     })
     };
 
+//_________UPDATE ROLE______________
 function updateRole() {
     
     db.query(`SELECT employee.first_name, employee.last_name FROM employee`, function (err, result) {
@@ -337,6 +339,7 @@ function updateRole() {
 });
 }
 
+//_________DELETE DEPARTMENT______________
 function deleteDepartment() {
     db.query('SELECT department.id As id, department.department_name As Departments FROM department', function (err, result) {
         if (err) throw err;
@@ -366,6 +369,7 @@ function deleteDepartment() {
 })
 }
 
+//_________DELETE DEPARTMENT ROLE______________
 function deleteDepartmentRole() {
     db.query(`SELECT department_role.title As Job_Title, 
     department_role.id As role_id, 
@@ -397,7 +401,7 @@ function deleteDepartmentRole() {
 })
 }
 
-
+//_________DELETE EMPLOYEE______________
 function deleteEmployee() {
     db.query(`SELECT employee.first_name, employee.last_name FROM employee`, function (err, result) {
         if (err) throw err;
@@ -426,6 +430,7 @@ function deleteEmployee() {
 })
 }
 
+//_________VIEW DEPARTMENTS______________
 function viewDepartments() {
     //query to get all departments
     db.query('SELECT department.id As id, department.department_name As Departments FROM department', function (err, result) {
@@ -435,6 +440,7 @@ function viewDepartments() {
     });
 }
 
+//_________VIEW ROLES______________
 function viewRoles() {
     //query to get all roles
     db.query(`SELECT department_role.title As Job_Title, 
@@ -449,6 +455,7 @@ function viewRoles() {
     });
 }
 
+//_________VIEW EMPLOYEES______________
 function viewEmployees() {
     //query to get all employees
     db.query(`SELECT employee.id As id, employee.first_name, employee.last_name, 
